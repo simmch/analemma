@@ -1,0 +1,43 @@
+List of all races and subraces in the world of Tungra?
+Dragonborn: Dragon-like humanoid with breath weapons.
+Dwarf: Hardy and skilled in mining and craftsmanship.
+Elf: Graceful and magical, with keen senses.
+Gnome: Energetic and tiny, with a love for invention.
+Half-Elf: Blend of human and elf qualities.
+Halfling: Small, nimble, and good at avoiding notice.
+Half-Orc: Strong and resilient, with a mix of human and orc traits.
+Human: Adaptable and innovative, with no particular racial strengths.
+Tiefling: Infernal heritage, often facing prejudice.
+Aarakocra: Bird-like beings with flight abilities.
+Aasimar: Mortals with celestial heritage.
+Air Genasi: Inherited traits from the Elemental Plane of Air.
+Bugbear: Quiet and sneaky despite their size.
+Centaur: Half-human, half-horse, known for their galloping speed.
+Changeling: Shapeshifters with the ability to change appearance.
+Deep Gnome: Subterranean gnomes with unique abilities.
+Duergar: Dwarves transformed by the Underdark.
+Earth Genasi: Inherited traits from the Elemental Plane of Earth.
+Eladrin: Elves with ties to the Feywild.
+Fairy: Small beings with fey magic.
+Firbolg: Giant kin with a connection to nature.
+Fire Genasi: Inherited traits from the Elemental Plane of Fire.
+Githyanki: Psychic and formidable warriors.
+Githzerai: Skilled in psionic abilities.
+Goblin: Small, crafty creatures with a knack for survival.
+Goliath: Strong and resilient mountain dwellers.
+Harengon: Lucky and fleet-footed creatures.
+Hobgoblin: Skilled warriors with a fey connection.
+Kenku: Bird-like beings with mimicry abilities.
+Kobold: Small, draconic creatures with a connection to dragons.
+Lizardfolk: Reptilian creatures with natural defenses.
+Minotaur: Bull-headed humanoids with great strength.
+Orc: Savage and powerful warriors.
+Satyr: Part-human, part-goat creatures known for revelry.
+Sea Elf: Aquatic elves with a connection to the sea.
+Shadar-kai: Elves transformed by the Shadowfell.
+Shifter: Humanoids with bestial aspects.
+Tabaxi: Cat-like humanoids with agility.
+Tortle: Humanoid turtles with natural defenses.
+Triton: Guardians of the sea with aquatic abilities.
+Water Genasi: Inherited traits from the Elemental Plane of Water.
+Yuan-ti: Serpent-like creatures with various abilities.
