@@ -35,7 +35,7 @@ else:
 @listen()
 async def on_ready():
    server_count = len(bot.guilds)
-   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"In Looters Bay 🌍", type=1))
+   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"In Loota's Bae 🌍", type=1))
    print("Bot is running")
 
 
@@ -45,7 +45,10 @@ async def on_ready():
 async def ask(ctx, question: str):
    await ctx.defer()
    response = run_search(question)
-   await ctx.send("You are asking the wrong questions." if response == "" else response)
+   embedVar = Embed(title=f"{question}", color=0x00ff00)
+   embedVar.add_field(name="Answer", value=f"{response}", inline=False)
+   await ctx.send(embed=embedVar)
+   # await ctx.send("You are asking the wrong questions." if response == "" else response)
    return
 
 
