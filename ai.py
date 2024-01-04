@@ -27,7 +27,7 @@ def run_search(question):
     # index = VectorstoreIndexCreator.from_loaders([loader])
 
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=500)
     splits = text_splitter.split_documents(docs)
     vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 
