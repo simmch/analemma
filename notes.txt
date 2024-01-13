@@ -1,0 +1,15 @@
+Mongodb Integration
+
+Mongodb is a NoSQL database that stores data in JSON-like documents with dynamic schemas. It is a popular choice for many modern web applications because it can be scaled easily and quickly. It also provides high availability and fault tolerance. Mongodb is a document-oriented database that stores data in JSON-like documents with dynamic schemas. It is a popular choice for many modern web applications because it can be scaled easily and quickly. It also provides high availability and fault tolerance.
+
+Roc can assign characters to people in the "ownership" collection.
+ownership = {
+    "name": "Character Name",
+    "owner": "DID",
+}
+
+Search types
+- Ask Anything
+- Character Lookup
+- Location Lookup
+- Item Lookup

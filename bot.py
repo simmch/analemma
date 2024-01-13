@@ -11,16 +11,16 @@ bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_traceback
 
 load_dotenv()
 
-# def load(ctx, extension):
-#    bot.load_extension(f'cogs.{extension}')
+def load(ctx, extension):
+   bot.load_extension(f'cogs.{extension}')
 
-# def unload(ctx, extension):
-#    bot.unload_extension(f'cogs.{extension}')
+def unload(ctx, extension):
+   bot.unload_extension(f'cogs.{extension}')
 
-# for filename in os.listdir('./cogs'):
-#    if filename.endswith('.py'):
-#       # :-3 removes .py from filename
-#       bot.load_extension(f'cogs.{filename[:-3]}')
+for filename in os.listdir('./cogs'):
+   if filename.endswith('.py'):
+      # :-3 removes .py from filename
+      bot.load_extension(f'cogs.{filename[:-3]}')
 
 
 if os.environ["env"] == "production":
@@ -44,7 +44,7 @@ async def on_ready():
 ], scopes=guild_ids)
 async def ask(ctx, question: str):
    await ctx.defer()
-   response = run_search(question)
+   response = await run_search(question)
    embedVar = Embed(title=f"{question}", color=0x00ff00)
    embedVar.add_field(name="Answer", value=f"{response}", inline=False)
    await ctx.send(embed=embedVar)

@@ -2,27 +2,53 @@ import os
 import sys
 import bs4
 from langchain import hub
-from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.chat_models import ChatOpenAI
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+from langchain_community.chat_models import ChatOpenAI
+from langchain.document_loaders import DirectoryLoader
 from langchain.indexes import VectorstoreIndexCreator
+from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
+import nest_asyncio
+from langchain.document_loaders.mongodb import MongodbLoader
+nest_asyncio.apply() 
 from dotenv import load_dotenv
+from typing import Dict, Optional 
+from motor.motor_asyncio import AsyncIOMotorClient
+import certifi
+
+class CustomMongodbLoader(MongodbLoader):
+    def __init__(self, connection_string: str, db_name: str, collection_name: str, *, filter_criteria: Optional[Dict] = None):
+        # Call the original constructor
+        super().__init__(connection_string, db_name, collection_name, filter_criteria=filter_criteria)
+
+        # Add your SSL certificate handling
+        self.client = AsyncIOMotorClient(connection_string, tlsCAFile=certifi.where())
+        self.db = self.client.get_database(db_name)
+        self.collection = self.db.get_collection(collection_name)
+
 
 
 load_dotenv()
 
-def run_search(question):
-    loader = DirectoryLoader('text_docs/', glob="**/*.txt")
+async def run_search(question):
+    if os.environ["env"] == "production":
+        use_database = "Lore"
+    else:
+        use_database = "LoreTest"
 
+    loader = CustomMongodbLoader(
+        connection_string=os.environ["MONGO_KEY"],
+        db_name=use_database,
+        collection_name="lore",
+        )
 
-    docs = loader.load()
+    docs = await loader.aload()
 
+    # print(len(docs))
 
     template = """The context given is from our Dungeons & Dragons campaign, which is set in a world called Tungra. All of the context is important to the story and development of the characters, the locations, the world, and the plot. You will answer like the Dungeon Master.
     If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
