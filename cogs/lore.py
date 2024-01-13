@@ -28,7 +28,7 @@ class Lore(Extension):
         now = timestamps.get_timestamp()
         new_lore = lore.Lore(lore_title, lore_description, writer_id, now)
         new_lore.save()
-        await modal_ctx.send(f"New lore has been added to the dnd database.")
+        await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database.")
         
 
 

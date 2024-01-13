@@ -87,6 +87,3 @@ async def run_search(question):
         return message
     else:
         return "There is nothing even remotely close to this in the campaign lore, dummy."
-
-
-
