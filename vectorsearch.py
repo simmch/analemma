@@ -1,5 +1,4 @@
 import os
-import openapi
 import certifi
 import pymongo
 from dotenv import load_dotenv
