@@ -8,7 +8,7 @@ from pymongo import MongoClient
 if os.environ["env"] == "production":
    use_database = "Lore"
 else:
-   use_database = "LoreTest"
+   use_database = "Lore"
 
 mongo = MongoClient(os.environ["MONGO_KEY"], tlsCAFile=certifi.where())
 

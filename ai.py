@@ -8,51 +8,66 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_community.chat_models import ChatOpenAI
-from langchain.document_loaders import DirectoryLoader
-from langchain.indexes import VectorstoreIndexCreator
+from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.schema.document import Document
 import nest_asyncio
 from langchain.document_loaders.mongodb import MongodbLoader
 nest_asyncio.apply() 
 from dotenv import load_dotenv
-from typing import Dict, Optional 
+from typing import Dict, Optional, Sequence
 from motor.motor_asyncio import AsyncIOMotorClient
 import certifi
+import vectorsearch
 
 class CustomMongodbLoader(MongodbLoader):
-    def __init__(self, connection_string: str, db_name: str, collection_name: str, *, filter_criteria: Optional[Dict] = None):
-        # Call the original constructor
+    # Adjust your __init__ method to accept additional parameters that might help in filtering
+    def __init__(self, connection_string: str, db_name: str, collection_name: str, *, filter_criteria: Optional[Dict] = None, field_names: Optional[Sequence[str]] = None, additional_params: Dict = None):
         super().__init__(connection_string, db_name, collection_name, filter_criteria=filter_criteria)
-
-        # Add your SSL certificate handling
         self.client = AsyncIOMotorClient(connection_string, tlsCAFile=certifi.where())
         self.db = self.client.get_database(db_name)
         self.collection = self.db.get_collection(collection_name)
+        
+        # Let's say you want to dynamically adjust your filter based on some external parameters
+        # if additional_params:
+        #     self.filter_criteria.update(additional_params)  # Make sure to handle None scenarios for filter_criteria and additional_params
+        #     self.collection = self.db.get_collection(collection_name)
 
 
 
 load_dotenv()
 
 async def run_search(question):
-    if os.environ["env"] == "production":
-        use_database = "Lore"
-    else:
-        use_database = "LoreTest"
+    # if os.environ["env"] == "production":
+    #     use_database = "Lore"
+    # else:
+    #     use_database = "Lore"
 
-    loader = CustomMongodbLoader(
-        connection_string=os.environ["MONGO_KEY"],
-        db_name=use_database,
-        collection_name="lore",
-        )
+    # loader = CustomMongodbLoader(
+    #     connection_string=os.environ["MONGO_KEY"],
+    #     db_name=use_database,
+    #     collection_name="lore",
+    #     field_names=["original_title", "original_description"],
+    #     )
+
+    text = vectorsearch.answer_question(question)
     
-    if loader:
-        docs = await loader.aload()
+    def get_text_chunks_langchain(text):
+        text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
+        docs = [Document(page_content=x) for x in text_splitter.split_text(text)]
+        return docs
+    
+    docs = get_text_chunks_langchain(text)
+    if docs:
+        print("Got Docs!")
+        # docs = await loader.aload()
         # print(len(docs))
 
-        template = """The context given is from our Dungeons & Dragons campaign, which is set in a world called Tungra. All of the context is important to the story and development of the characters, the locations, the world, and the plot. You will answer like the Dungeon Master.
+        template = """You will answer like the Dungeon Master.
         If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
-        Use three sentences maximum and keep the answer as concise as possible.
+        Use two to three paragraphs maximum or two to three sentences minimum if there is not a lot of information.
         Always say "thanks for asking!" at the end of the answer.
 
         {context}
@@ -62,7 +77,7 @@ async def run_search(question):
         Helpful Answer:"""
         custom_rag_prompt = PromptTemplate.from_template(template)
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=500)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
         splits = text_splitter.split_documents(docs)
         vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 

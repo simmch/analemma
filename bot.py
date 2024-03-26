@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
 from ai import run_search
 
+
 guild_ids = None
 guild_id = None
 guild_channel = None
@@ -23,6 +24,8 @@ for filename in os.listdir('./cogs'):
       bot.load_extension(f'cogs.{filename[:-3]}')
 
 
+activity_txt = "In Loota's Bae 🌍"
+
 if os.environ["env"] == "production":
    guild_id = 968404015912214539
    guild_channel = 957061470192033812
@@ -30,12 +33,13 @@ else:
    guild_ids = [968404015912214539]
    guild_id = 968404015912214539
    guild_channel = 962580388432195595
+   activity_txt = "Testing some code"
 
 
 @listen()
 async def on_ready():
    server_count = len(bot.guilds)
-   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"In Loota's Bae 🌍", type=1))
+   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"{activity_txt}", type=1))
    print("Bot is running")
 
 
