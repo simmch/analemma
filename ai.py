@@ -67,7 +67,7 @@ async def run_search(question):
 
         template = """You will answer like the Dungeon Master.
         If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
-        Use two to three paragraphs maximum or two to three sentences minimum if there is not a lot of information.
+        Use up to two paragraphs maximum or two to three sentences minimum if there is not a lot of information.
         Always say "thanks for asking!" at the end of the answer.
 
         {context}
