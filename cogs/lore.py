@@ -32,8 +32,11 @@ class Lore(Extension):
         now = timestamps.get_timestamp()
         new_lore = lore.Lore(lore_title, lore_description, writer_id, now, lore_title_no_spaces, lore_description_no_spaces)
         new_lore.save()
-        vectorsearch.add_embedding(lore_title)
-        await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database.")
+        response = vectorsearch.add_embedding(lore_title)
+        if response:
+            await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. Embedding has been added.")
+        else:
+            await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. However, embedding was not added. Please contact the developer.")
         return
         
 

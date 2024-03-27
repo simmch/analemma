@@ -43,7 +43,7 @@ async def on_ready():
    print("Bot is running")
 
 
-@slash_command(description="Ask Analemma a question", options=[
+@slash_command(description="Ask the lore bot a question", options=[
     SlashCommandOption(name="question", description="The question you want to ask", type=OptionType.STRING, required=True)
 ], scopes=guild_ids)
 async def ask(ctx, question: str):
@@ -54,6 +54,21 @@ async def ask(ctx, question: str):
    await ctx.send(embed=embedVar)
    # await ctx.send("You are asking the wrong questions." if response == "" else response)
    return
+
+@slash_command(description="Ask Analemma a question, text response only", options=[
+    SlashCommandOption(name="question", description="The question you want to ask", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def asktextresponse(ctx, question: str):
+   try:
+      await ctx.defer()
+      response = await run_search(question)
+      await ctx.send(response, ephemeral=True)
+      return
+   except Exception as e:
+      print(f"Error: {e}")
+      await ctx.send("The lore bot is resting a bit. Please ask your question again.", ephemeral=True)
+      return
 
 
 if os.environ["env"] == "production":

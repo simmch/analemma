@@ -53,52 +53,57 @@ async def run_search(question):
     #     )
 
     text = vectorsearch.answer_question(question)
-    
-    def get_text_chunks_langchain(text):
-        text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
-        docs = [Document(page_content=x) for x in text_splitter.split_text(text)]
-        return docs
-    
-    docs = get_text_chunks_langchain(text)
-    if docs:
-        print("Got Docs!")
-        # docs = await loader.aload()
-        # print(len(docs))
 
-        template = """You will answer like the Dungeon Master.
-        If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
-        Use two to three paragraphs maximum or two to three sentences minimum if there is not a lot of information.
-        Always say "thanks for asking!" at the end of the answer.
+    if text:
+        print("Got Text from vector search!")
+        def get_text_chunks_langchain(text):
+            text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
+            docs = [Document(page_content=x) for x in text_splitter.split_text(text)]
+            return docs
+        
+        docs = get_text_chunks_langchain(text)
+        if docs:
+            print("Got Docs!")
+            # docs = await loader.aload()
+            # print(len(docs))
 
-        {context}
+            template = """You will answer like the Dungeon Master.
+            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
+            Use two to three paragraphs maximum or two to three sentences minimum if there is not a lot of information.
+            Always say "thanks for asking!" at the end of the answer.
 
-        Question: {question}
+            {context}
 
-        Helpful Answer:"""
-        custom_rag_prompt = PromptTemplate.from_template(template)
+            Question: {question}
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
-        splits = text_splitter.split_documents(docs)
-        vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+            Helpful Answer:"""
+            custom_rag_prompt = PromptTemplate.from_template(template)
 
-        # Retrieve and generate using the relevant snippets of the blog.
-        retriever = vectorstore.as_retriever()
-        # prompt = hub.pull("rlm/rag-prompt")
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
+            splits = text_splitter.split_documents(docs)
+            vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 
-
-        def format_docs(docs):
-            return "\n\n".join(doc.page_content for doc in docs)
+            # Retrieve and generate using the relevant snippets of the blog.
+            retriever = vectorstore.as_retriever()
+            # prompt = hub.pull("rlm/rag-prompt")
+            llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
 
 
-        rag_chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | custom_rag_prompt
-            | llm
-            | StrOutputParser()
-        )
-        message = rag_chain.invoke(question)
+            def format_docs(docs):
+                return "\n\n".join(doc.page_content for doc in docs)
 
-        return message
+
+            rag_chain = (
+                {"context": retriever | format_docs, "question": RunnablePassthrough()}
+                | custom_rag_prompt
+                | llm
+                | StrOutputParser()
+            )
+            message = rag_chain.invoke(question)
+
+            return message
+        else:
+            return "There is nothing even remotely close to this in the campaign lore, dummy."
     else:
-        return "There is nothing even remotely close to this in the campaign lore, dummy."
+        print("Error in vectorsearch.py function.")
+        return False
