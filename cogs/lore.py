@@ -34,10 +34,10 @@ class Lore(Extension):
             new_lore = lore.Lore(lore_title, lore_description, writer_id, now, lore_title_no_spaces, lore_description_no_spaces)
             new_lore.save()
             response = vectorsearch.add_embedding(lore_title)
-            # if response:
-            await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. Embedding has been added.")
-            # else:
-            #     await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. However, embedding was not added. Please contact the developer.")
+            if response:
+                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. Embedding has been added.")
+            else:
+                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. However, embedding was not added. Please contact the developer.")
             return
         except Exception as e:
             print(f"Error: {e}")
