@@ -67,7 +67,7 @@ async def run_search(question):
             # docs = await loader.aload()
             # print(len(docs))
 
-            template = """You will answer like the Dungeon Master.
+            template = """You are the Lore Archive for Dungeon and Dragons campaigns.
             If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
             up to two paragraphs maximum or two to three sentences minimum if there is not a lot of information. Format the paragraphs with two blank lines in between.
 
