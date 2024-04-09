@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
 from ai import run_search
 
@@ -48,12 +49,27 @@ async def on_ready():
 ], scopes=guild_ids)
 async def ask(ctx, question: str):
    await ctx.defer()
-   response = await run_search(question)
-   embedVar = Embed(title=f"{question}", color=0x00ff00)
-   embedVar.add_field(name="Answer", value=f"{response}", inline=False)
-   await ctx.send(embed=embedVar)
-   # await ctx.send("You are asking the wrong questions." if response == "" else response)
-   return
+   try:
+      response = await run_search(question)
+      # embedVar = Embed(title=f"{question}", color=0x00ff00)
+      # embedVar.add_field(name="Answer", value=f"{response}", inline=False)
+      # await ctx.send(embed=embedVar)
+      embed_list = []  # This is where we'll store our embeds
+
+      # Let's slice and dice
+      for i in range(0, len(response), 1000):
+         chunk = response[i:i+1000]  # Get a slice of 1000 chars
+         embedVar = Embed(title=f"{question}", color=0x00ff00)
+         embedVar.add_field(name="Answer", value=f"{chunk}", inline=False)
+         embed_list.append(embedVar)  # Add our embed to the list
+      paginator = Paginator.create_from_embeds(bot, *embed_list)
+      paginator.show_select_menu = True
+      await paginator.send(ctx)
+      return
+   except Exception as e:
+      print(f"Error: {e}")
+      await ctx.send("The lore bot is resting a bit. Please ask your question again.", ephemeral=True)
+      return
 
 @slash_command(description="Ask Analemma a question, text response only", options=[
     SlashCommandOption(name="question", description="The question you want to ask", type=OptionType.STRING, required=True)

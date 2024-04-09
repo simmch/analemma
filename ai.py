@@ -68,8 +68,7 @@ async def run_search(question):
             # print(len(docs))
 
             template = """You are the Lore Archive for Dungeon and Dragons campaigns.
-            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer.
-            up to two paragraphs maximum or two to three sentences minimum if there is not a lot of information. Never return more than 1000 characters. Format the paragraphs with two blank lines in between.
+            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer. Break up paragraphs with blank lines for readability. Make it clear when you are quoting from the campaign lore. Make the response discord formatted text with bolds, italics, and underlines, without ```yaml. 
 
             {context}
 
