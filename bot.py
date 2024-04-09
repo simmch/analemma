@@ -57,8 +57,8 @@ async def ask(ctx, question: str):
       embed_list = []  # This is where we'll store our embeds
 
       # Let's slice and dice
-      for i in range(0, len(response), 1000):
-         chunk = response[i:i+1000]  # Get a slice of 1000 chars
+      for i in range(0, len(response), 600):
+         chunk = response[i:i+600]  # Get a slice of 1000 chars
          embedVar = Embed(title=f"{question}", color=0x00ff00)
          embedVar.add_field(name="Answer", value=f"{chunk}", inline=False)
          embed_list.append(embedVar)  # Add our embed to the list
