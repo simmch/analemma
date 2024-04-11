@@ -58,7 +58,7 @@ async def run_search(question):
             # print(len(docs))
 
             template = """You are the Lore Archive for Dungeon and Dragons campaigns.
-            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer. Break up paragraphs with blank lines for readability. Make it clear when you are quoting from the campaign lore. Make sure the response is appropriately written like a dungeons and dragons style narrative. 
+            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer. Break up paragraphs with blank lines for readability. Make it clear when you are quoting from the campaign lore. Make sure the response is appropriately written like a dungeons and dragons style narrative. If in the question I ask yes or no, only reply with yes if the answer is yes or no if the answer is no or if the answer is not in the campaign lore.
 
             {context}
 
