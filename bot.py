@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
 from ai import run_search
-
+import asyncio
+from utilities.logger import logger
 
 guild_ids = None
 guild_id = None
@@ -12,6 +13,8 @@ guild_channel = None
 bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
 
 load_dotenv()
+
+is_connected = False
 
 def load(ctx, extension):
    bot.load_extension(f'cogs.{extension}')
@@ -41,13 +44,14 @@ else:
 async def on_ready():
    server_count = len(bot.guilds)
    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"{activity_txt}", type=1))
-   print("Bot is running")
+   logger.info("Bot is running")
 
 
 @slash_command(description="Ask the lore bot a question", options=[
     SlashCommandOption(name="question", description="The question you want to ask", type=OptionType.STRING, required=True)
 ], scopes=guild_ids)
 async def ask(ctx, question: str):
+   logger.info(f"Ask command received from {ctx.author.id} | {ctx.author}")
    await ctx.defer()
    try:
       response = await run_search(question)
@@ -64,10 +68,11 @@ async def ask(ctx, question: str):
          embed_list.append(embedVar)  # Add our embed to the list
       paginator = Paginator.create_from_embeds(bot, *embed_list)
       paginator.show_select_menu = True
+      logger.info(f"Sending answer from question asker {ctx.author.id} | {ctx.author}")
       await paginator.send(ctx)
       return
    except Exception as e:
-      print(f"Error: {e}")
+      logger.error(f"Error: {e}")
       await ctx.send("The lore bot is resting a bit. Please ask your question again.", ephemeral=True)
       return
 
@@ -76,6 +81,7 @@ async def ask(ctx, question: str):
 ], scopes=guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def asktextresponse(ctx, question: str):
+   logger.info(f"Ask (Text) command received from {ctx.author.id} | {ctx.author}")
    try:
       await ctx.defer()
       response = await run_search(question)
@@ -93,4 +99,43 @@ else:
    DISCORD_TOKEN = os.environ['TEST_DISCORD_TOKEN']
 
 
-bot.start(DISCORD_TOKEN)
+async def health_check():
+    global is_connected  # Assuming is_connected is a global flag you've defined
+    print(is_connected)
+    try:
+        await bot.fetch_user(306429381948211210)  # Attempt to fetch the bot's user profile
+        if not is_connected:
+            print("Reconnected to Discord.")
+        is_connected = True
+    except Exception as ex:
+      is_connected = False
+      print(f"Health check failed: {ex}")
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+        # Here, you could also initiate a reconnection if your framework doesn't handle it automatically.
+
+async def start_health_check():
+    while True:
+        await health_check()
+        await asyncio.sleep(300)  # Wait for 300 seconds (5 minutes) before the next check
+
+
+async def main():
+    await bot.start(DISCORD_TOKEN)  # Starts the bot
+    health_check_task = asyncio.create_task(start_health_check())
+    await health_check_task  # This ensures the health check runs continuously
+
+if __name__ == "__main__":
+    asyncio.run(main())

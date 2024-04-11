@@ -4,10 +4,10 @@ import bs4
 from langchain import hub
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import WebBaseLoader
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
@@ -21,6 +21,8 @@ from typing import Dict, Optional, Sequence
 from motor.motor_asyncio import AsyncIOMotorClient
 import certifi
 import vectorsearch
+import asyncio
+from utilities.logger import logger
 
 class CustomMongodbLoader(MongodbLoader):
     # Adjust your __init__ method to accept additional parameters that might help in filtering
@@ -40,22 +42,10 @@ class CustomMongodbLoader(MongodbLoader):
 load_dotenv()
 
 async def run_search(question):
-    # if os.environ["env"] == "production":
-    #     use_database = "Lore"
-    # else:
-    #     use_database = "Lore"
-
-    # loader = CustomMongodbLoader(
-    #     connection_string=os.environ["MONGO_KEY"],
-    #     db_name=use_database,
-    #     collection_name="lore",
-    #     field_names=["original_title", "original_description"],
-    #     )
-
-    text = vectorsearch.answer_question(question)
-
+    text = await asyncio.to_thread(vectorsearch.answer_question, question)
+    await asyncio.sleep(0.2)
     if text:
-        print("Got Text from vector search!")
+        logger.info("Got Text from vector search!")
         def get_text_chunks_langchain(text):
             text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=500)
             docs = [Document(page_content=x) for x in text_splitter.split_text(text)]
@@ -63,12 +53,12 @@ async def run_search(question):
         
         docs = get_text_chunks_langchain(text)
         if docs:
-            print("Got Docs!")
+            logger.info("Got Docs!")
             # docs = await loader.aload()
             # print(len(docs))
 
             template = """You are the Lore Archive for Dungeon and Dragons campaigns.
-            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer. Break up paragraphs with blank lines for readability. Make it clear when you are quoting from the campaign lore. Make the response discord formatted text with bolds, italics, and underlines, without ```yaml. 
+            If you don't know the answer, say that the answer has not been added to the campaign lore, don't try to make up an answer. Break up paragraphs with blank lines for readability. Make it clear when you are quoting from the campaign lore. Make sure the response is appropriately written like a dungeons and dragons style narrative. 
 
             {context}
 
@@ -86,7 +76,6 @@ async def run_search(question):
             # prompt = hub.pull("rlm/rag-prompt")
             llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
 
-
             def format_docs(docs):
                 return "\n\n".join(doc.page_content for doc in docs)
 
@@ -97,11 +86,17 @@ async def run_search(question):
                 | llm
                 | StrOutputParser()
             )
-            message = rag_chain.invoke(question)
+
+            # message = rag_chain.invoke(question)
+            logger.info('Running RAG Chain')
+            await asyncio.sleep(0.5)
+            message = await asyncio.to_thread(rag_chain.invoke, question)
 
             return message
         else:
+            logger.error("No docs found for this question")
             return "There is nothing even remotely close to this in the campaign lore, dummy."
     else:
-        print("Error in vectorsearch.py function.")
+        logger.critical("Error in vectorsearch.py function.")
         return False
+    

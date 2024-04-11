@@ -1,8 +1,12 @@
 import uuid
 import utilities.timestamps as timestamps
+from utilities.logger import logger
+import asyncio
 import classes.lore_class as lore
 from interactions import Modal, ParagraphText, ShortText, SlashContext, ModalContext, Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 import vectorsearch
+import traceback
+
 
 class Lore(Extension):
     def __init__(self, bot):
@@ -14,6 +18,7 @@ class Lore(Extension):
 
     @slash_command(name="newentry", description="Add Lore to the bot")
     async def newentry(self, ctx: SlashContext):
+        logger.info(f"Newentry command received from {ctx.author.id} | {ctx.author}")
         try:
             _uuid = str(uuid.uuid4())
             lore_modal = Modal(
@@ -22,25 +27,32 @@ class Lore(Extension):
                 title="New Lore",
             )
             await ctx.send_modal(modal=lore_modal)
+            
             modal_ctx: ModalContext = await self.bot.wait_for_modal(lore_modal)
-
+            
             lore_title = modal_ctx.responses[f"short_text-{_uuid}"]
             lore_description = modal_ctx.responses[f"long_text-{_uuid}"]
-            # Removing all spaces
-            lore_title_no_spaces = lore_title.replace(" ", "")
-            lore_description_no_spaces = lore_description.replace(" ", "")
+
             writer_id = str(ctx.author.id)
             now = timestamps.get_timestamp()
-            new_lore = lore.Lore(lore_title, lore_description, writer_id, now, lore_title_no_spaces, lore_description_no_spaces)
-            new_lore.save()
-            response = vectorsearch.add_embedding(lore_title)
+
+            # Construct the Lore object
+            new_lore = lore.Lore(lore_title, lore_description, writer_id, now, lore_title.replace(" ", ""), lore_description.replace(" ", ""))
+
+            # Save the lore object using asyncio.to_thread to prevent blocking
+            await asyncio.to_thread(new_lore.save)
+
+            # Add embedding in a separate thread
+            response = await asyncio.to_thread(vectorsearch.add_embedding, lore_title)
+
+            logger.debug(f"Response from vectorsearch.add_embedding: {response}")
+
             if response:
-                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. Embedding has been added.")
-            else:
-                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database. However, embedding was not added. Please contact the developer.")
+                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database.")
             return
         except Exception as e:
-            print(f"Error: {e}")
+            traceback_str = ''.join(traceback.format_exception(None, e, e.__traceback__))
+            logger.critical(f"Error: {traceback_str}")
             await ctx.send("An error occurred while adding the lore. Please try again.")
             return
         
