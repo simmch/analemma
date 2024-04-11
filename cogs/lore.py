@@ -41,7 +41,6 @@ class Lore(Extension):
 
             # Save the lore object using asyncio.to_thread to prevent blocking
             await asyncio.to_thread(new_lore.save)
-            await asyncio.sleep(0.5)
             # Add embedding in a separate thread
             response = await asyncio.to_thread(vectorsearch.add_embedding, lore_title)
 
