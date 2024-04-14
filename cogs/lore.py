@@ -42,13 +42,10 @@ class Lore(Extension):
             # Save the lore object using asyncio.to_thread to prevent blocking
             await asyncio.to_thread(new_lore.save)
             # Add embedding in a separate thread
+
+            await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database.")
             response = await asyncio.to_thread(vectorsearch.add_embedding, lore_title)
-
-
             logger.debug(f"Response from vectorsearch.add_embedding: {response}")
-
-            if response:
-                await modal_ctx.send(f"New lore about **{lore_title}** has been added to the dnd database.")
             return
         except Exception as e:
             traceback_str = ''.join(traceback.format_exception(None, e, e.__traceback__))
