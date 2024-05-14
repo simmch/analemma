@@ -74,7 +74,7 @@ async def run_search(question):
             # Retrieve and generate using the relevant snippets of the blog.
             retriever = vectorstore.as_retriever()
             # prompt = hub.pull("rlm/rag-prompt")
-            llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
+            llm = ChatOpenAI(model_name="gpt-4o-2024-05-13", temperature=0)
 
             def format_docs(docs):
                 return "\n\n".join(doc.page_content for doc in docs)
