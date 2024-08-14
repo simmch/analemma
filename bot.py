@@ -63,8 +63,8 @@ async def ask(ctx, question: str):
       # Let's slice and dice
       for i in range(0, len(response), 600):
          chunk = response[i:i+600]  # Get a slice of 1000 chars
-         embedVar = Embed(title=f"<:tungra:1273335344040902739> {question}", color=0x00ff00)
-         embedVar.add_field(name="Answer", value=f"{chunk}", inline=False)
+         embedVar = Embed(title=f"{question}", color=0x00ff00)
+         embedVar.add_field(name="<:tungra:1273335344040902739> Answer", value=f"{chunk}", inline=False)
          embed_list.append(embedVar)  # Add our embed to the list
       paginator = Paginator.create_from_embeds(bot, *embed_list)
       paginator.show_select_menu = True
