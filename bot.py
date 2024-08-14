@@ -63,7 +63,7 @@ async def ask(ctx, question: str):
       # Let's slice and dice
       for i in range(0, len(response), 600):
          chunk = response[i:i+600]  # Get a slice of 1000 chars
-         embedVar = Embed(title=f"{question}", color=0x00ff00)
+         embedVar = Embed(title=f"<:tungra:1273335344040902739> {question}", color=0x00ff00)
          embedVar.add_field(name="Answer", value=f"{chunk}", inline=False)
          embed_list.append(embedVar)  # Add our embed to the list
       paginator = Paginator.create_from_embeds(bot, *embed_list)
@@ -76,7 +76,7 @@ async def ask(ctx, question: str):
       await ctx.send("The lore bot is resting a bit. Please ask your question again.", ephemeral=True)
       return
 
-@slash_command(description="Ask Analemma a question, text response only", options=[
+@slash_command(description="Ask Tungra a question, text response only", options=[
     SlashCommandOption(name="question", description="The question you want to ask", type=OptionType.STRING, required=True)
 ], scopes=guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
