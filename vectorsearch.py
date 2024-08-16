@@ -29,7 +29,7 @@ def answer_question(question: str):
                 "$vectorSearch": {
                     "queryVector": generate_embedding(query),
                     "path": "plot_embedding_hf",
-                    "numCandidates": 100,
+                    "numCandidates": 150,
                     "limit": 10,
                     "index": "DndSemanticSearch",
                 }
@@ -51,7 +51,7 @@ def answer_question(question: str):
 def add_embedding(title):
     try:
         hf_token = os.environ["HF_TOKEN"]
-        embedding_url="https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+        embedding_url="https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-mpnet-base-v2"
 
         def generate_embedding(text: str) -> list[float]:
             response = requests.post(embedding_url, headers={"Authorization": f"Bearer {hf_token}"}, json={"inputs": text})
