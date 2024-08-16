@@ -14,7 +14,7 @@ def answer_question(question: str):
     print("Running vectorsearch.py function.")
     try:
         hf_token = os.environ["HF_TOKEN"]
-        embedding_url="https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+        embedding_url="https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-mpnet-base-v2"
 
         def generate_embedding(text: str) -> list[float]:
             response = requests.post(embedding_url, headers={"Authorization": f"Bearer {hf_token}"}, json={"inputs": text})
